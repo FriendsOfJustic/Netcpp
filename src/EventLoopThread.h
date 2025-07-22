@@ -7,6 +7,7 @@
 #include "asio.hpp"
 #include "thread"
 #include "CallbackInterface.h"
+#include "iostream"
 namespace NETCPP {
 
 class EventLoopThread {
@@ -37,7 +38,7 @@ class EventLoopThread {
   void RunInLoop(std::function<void()> fn) {
     if (io_context_ != nullptr) {
       std::lock_guard<std::mutex> lock(mutex_);
-      io_context_->post(fn);
+      asio::post(*io_context_, fn);
     }
   }
   asio::io_context &GetLoop() {
@@ -82,10 +83,10 @@ class EventLoopThreadPool {
       throw std::runtime_error("EventLoopThreadPool is empty");
     }
     auto cnt = next_.fetch_add(1);
-    return threads_[cnt % threads_.size()]->GetLoop();
+    return threads_[cnt % thread_num_]->GetLoop();
   }
 
-  int threadNum() { return thread_num_; }
+  int threadNum() const { return thread_num_; }
  private:
   std::atomic<int> next_ = 0;
   int thread_num_ = 0;

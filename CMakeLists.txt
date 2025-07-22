@@ -3,10 +3,11 @@ project(Netcpp)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-find_package(asio CONFIG REQUIRED)
-link_libraries(asio::asio)
+#find_package(asio CONFIG REQUIRED)
+include_directories(third_party/asio-1.34.2/include)
 aux_source_directory(src SRC_LIST)
-#message(1111111111111111 ${CMAKE_SOURCE_DIR})
+
+
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_executable(${PROJECT_NAME} ${SRC_LIST}
         src/CallbackInterface.h
@@ -17,4 +18,10 @@ add_executable(${PROJECT_NAME} ${SRC_LIST}
         src/Acceptor.h
         src/Acceptor.cc)
 
-add_executable(test1 tests/test1.cc ${SRC_LIST})
+add_executable(test1 tests/test1.cc ${SRC_LIST}
+        src/http/HttpRequest.cc
+        src/http/HttpRequest.h
+        src/http/HttpResponse.cc
+        src/http/HttpResponse.h
+        src/http/HttpServer.cc
+        src/http/HttpServer.h)

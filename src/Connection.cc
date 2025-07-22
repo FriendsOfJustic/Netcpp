@@ -17,7 +17,6 @@ void Connection::onFinishRead(const asio::error_code &error, size_t bytes_transf
     }
     return;
   }
-//  read_buffer_.consume(bytes_transferred);
   read_buffer_.commit(bytes_transferred);
   // TODO 处理数据
   if (read_callback_) {
@@ -36,6 +35,9 @@ void Connection::doRead() {
 }
 void Connection::doWrite() {
   if (write_buffer_.size() == 0) {
+    if (write_complete_callback_) {
+      write_complete_callback_(shared_from_this());
+    }
     if (is_shutdown_ && socket_.is_open()) {
       socket_.shutdown(asio::socket_base::shutdown_send);
     }

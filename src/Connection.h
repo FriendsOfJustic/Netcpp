@@ -22,6 +22,10 @@ class Connection : public std::enable_shared_from_this<Connection> {
   void SetReadCallback(const std::function<void(ConnectionPtr ptr)> &read_callback) {
     read_callback_ = read_callback;
   }
+  void SetWriteCompleteCallback(const std::function<void(ConnectionPtr ptr)> &write_complete_callback) {
+    write_complete_callback_ = write_complete_callback;
+  }
+  
   void doRead();
   void doWrite();
   void start() { doRead(); }
@@ -40,6 +44,7 @@ class Connection : public std::enable_shared_from_this<Connection> {
   void onFinishWrite(const asio::error_code &error, size_t bytes_transferred);
   std::string name_;
   std::function<void(ConnectionPtr ptr)> read_callback_;
+  std::function<void(ConnectionPtr ptr)> write_complete_callback_;
   asio::streambuf read_buffer_;
   asio::streambuf write_buffer_;
   asio::ip::tcp::socket socket_;

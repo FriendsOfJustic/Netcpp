@@ -16,9 +16,11 @@ class TcpServer {
   void start();
   void SetThreadNum(int thread_num) { thread_pool_.SetThreadNum(thread_num); }
 
-
   void SetReadCallback(const std::function<void(ConnectionPtr ptr)> &read_callback) {
     read_callback_ = read_callback;
+  }
+  void SetWriteCompleteCallback(const std::function<void(ConnectionPtr ptr)> &write_complete_callback) {
+    write_complete_callback_ = write_complete_callback;
   }
   asio::io_context &GetNextLoop() {
     if (thread_pool_.threadNum() == 0) {
@@ -29,6 +31,7 @@ class TcpServer {
   }
  private:
   std::function<void(ConnectionPtr ptr)> read_callback_;
+  std::function<void(ConnectionPtr ptr)> write_complete_callback_;
   asio::io_context &base_loop_;
   void NewConnection(asio::ip::tcp::socket &sock);
   EventLoopThreadPool thread_pool_;
