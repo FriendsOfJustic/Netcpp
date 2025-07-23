@@ -1,0 +1,32 @@
+//
+// Created by 13454 on 2025/7/23.
+//
+
+#include "Type.h"
+namespace NETCPP {
+
+std::unordered_map<std::string, HTTP_METHOD> STRING2HTTP_METHOD = {
+    {"GET", HTTP_METHOD::GET},
+    {"POST", HTTP_METHOD::POST},
+    {"PUT", HTTP_METHOD::PUT},
+    {"DELETE", HTTP_METHOD::DELETE_},
+    {"HEAD", HTTP_METHOD::HEAD},
+    {"OPTIONS", HTTP_METHOD::OPTIONS},
+    {"CONNECT", HTTP_METHOD::CONNECT},
+    {"TRACE", HTTP_METHOD::TRACE},
+    {"PATCH", HTTP_METHOD::PATCH},
+    {"OTHERS", HTTP_METHOD::OTHERS}
+};
+std::unordered_map<HTTP_METHOD, std::string> HTTP_METHOD2STRING = {
+    {HTTP_METHOD::GET, "GET"},
+    {HTTP_METHOD::POST, "POST"},
+    {HTTP_METHOD::PUT, "PUT"},
+    {HTTP_METHOD::DELETE_, "DELETE"},
+    {HTTP_METHOD::HEAD, "HEAD"},
+    {HTTP_METHOD::OPTIONS, "OPTIONS"},
+    {HTTP_METHOD::CONNECT, "CONNECT"},
+    {HTTP_METHOD::TRACE, "TRACE"},
+    {HTTP_METHOD::PATCH, "PATCH"},
+    {HTTP_METHOD::OTHERS, "OTHERS"}
+};
+}
