@@ -44,6 +44,7 @@ void Connection::doWrite() {
     return;
   }
   auto self = shared_from_this();
+  
   asio::async_write(socket_, write_buffer_.data(),
                     [this, self](const asio::error_code &error, size_t bytes_transferred) {
                       onFinishWrite(error, bytes_transferred);  // 调用回调函数
