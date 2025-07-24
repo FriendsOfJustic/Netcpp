@@ -19,4 +19,12 @@ std::string NETCPP::HttpResponse::ToString() const {
   }
   return response;
 }
+void NETCPP::HttpResponse::JSON(const nlohmann::json &json) {
+  SetHeader("Content-Type", "application/json;charset=utf-8");
+  try {
+    body_ = json.dump();
+  } catch (const nlohmann::json::exception &e) {
+    std::cerr << "JSON dump error: " << e.what() << std::endl;
+  }
+}
 

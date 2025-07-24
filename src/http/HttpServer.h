@@ -67,7 +67,7 @@ class HttpServer {
   void TcpReadCallback(ConnectionPtr ptr);
 
   void Dispatch(const HttpRequest &req, HttpResponse &resp);
-  std::any context_;
+
   HttpHandler handler_;
   TcpServer tcp_server_;
 };

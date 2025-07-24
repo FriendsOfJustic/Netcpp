@@ -39,12 +39,18 @@ void Connection::doWrite() {
       write_complete_callback_(shared_from_this());
     }
     if (is_shutdown_ && socket_.is_open()) {
-      socket_.shutdown(asio::socket_base::shutdown_send);
+      std::error_code ec;
+      socket_.shutdown(asio::socket_base::shutdown_send, ec);
+      if (ec) {
+        std::cerr << "Error: " << ec.message() << std::endl;
+        socket_.close();
+        return;
+      }
     }
     return;
   }
   auto self = shared_from_this();
-  
+
   asio::async_write(socket_, write_buffer_.data(),
                     [this, self](const asio::error_code &error, size_t bytes_transferred) {
                       onFinishWrite(error, bytes_transferred);  // 调用回调函数

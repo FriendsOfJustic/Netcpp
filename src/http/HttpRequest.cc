@@ -24,8 +24,6 @@ bool NETCPP::HttpRequest::Parse(asio::streambuf &buffer) {
       return false;
     }
     input.ignore(1);
-//    buffer.consume(line.size() + 2);
-
     if (state_ == kRequestLine) {
       ParseRequestLine(line);
       state_ = kHeaders;
@@ -66,6 +64,10 @@ void NETCPP::HttpRequest::ParseHeader(const std::string &line) {
   headers_[key] = value;
 }
 void NETCPP::HttpRequest::ParseBody(asio::streambuf &buffer) {
+  if (content_length_ == 0) {
+    state_ = kDone;
+    return;
+  }
   auto sz = std::min(buffer.size(), content_length_);
   std::copy(asio::buffers_begin(buffer.data()), asio::buffers_begin(buffer.data()) + sz,
             std::back_inserter(body_));

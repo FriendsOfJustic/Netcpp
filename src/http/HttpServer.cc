@@ -6,10 +6,10 @@
 using namespace NETCPP;
 #include "Type.h"
 void NETCPP::HttpServer::TcpReadCallback(NETCPP::ConnectionPtr ptr) {
-  if (!context_.has_value()) {
-    context_ = std::make_any<HttpContext>(ptr);
+  if (!ptr->Context().has_value()) {
+    ptr->SetContext(std::make_any<HttpContext>(ptr));
   }
-  auto &context = std::any_cast<HttpContext &>(context_);
+  auto &context = std::any_cast<HttpContext &>(ptr->Context());
   if (!context.GetRequest().Parse(ptr->ReadBuffer())) {
     return;
   }

@@ -25,7 +25,8 @@ class HttpResponse {
   std::string GetBody() const { return body_; }
   void SetBody(const char *data, size_t len) { body_ = std::string(data, len); }
   void SetBody(const std::vector<char> &data) { body_ = std::string(data.data(), data.size()); }
-  void JSON(const nlohmann::json &json) { body_ = json.dump(); }
+  void JSON(const nlohmann::json &json);
+
   std::string ToString() const;
 
  private:

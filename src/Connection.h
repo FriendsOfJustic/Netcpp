@@ -25,7 +25,7 @@ class Connection : public std::enable_shared_from_this<Connection> {
   void SetWriteCompleteCallback(const std::function<void(ConnectionPtr ptr)> &write_complete_callback) {
     write_complete_callback_ = write_complete_callback;
   }
-  
+
   void doRead();
   void doWrite();
   void start() { doRead(); }
@@ -36,9 +36,10 @@ class Connection : public std::enable_shared_from_this<Connection> {
   void ForceShutDown() { socket_.close(); }
 
   void Write(const std::string &message);
-
+  std::any &Context() { return context_; }
+  void SetContext(std::any context) { context_ = std::move(context); }
  private:
-
+  std::any context_;
   bool is_shutdown_ = false;
   void onFinishRead(const asio::error_code &error, size_t bytes_transferred);
   void onFinishWrite(const asio::error_code &error, size_t bytes_transferred);
