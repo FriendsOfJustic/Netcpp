@@ -17,7 +17,9 @@ int main(int argc, char *argv[]) {
   int port = std::stoi(argv[1]);
   asio::io_context io_context;
   NETCPP::HttpServer server(io_context, asio::ip::tcp::endpoint(asio::ip::make_address_v4("0.0.0.0"), port));
-  server.POST("/student", [](const NETCPP::HttpRequest &req, NETCPP::HttpResponse &resp) {
+  server.POST("/student", [](NETCPP::HttpContext &ctx) {
+    auto &req = ctx.GetRequest();
+    auto &resp = ctx.GetResponse();
     resp.SetStatusCode(200);
     resp.SetStatusMessage("OK");
     resp.SetHeader("Content-Type", "application/json;charset=utf-8");
@@ -84,7 +86,9 @@ int main(int argc, char *argv[]) {
                              }));
   });
 
-  server.POST("/teacher", [](const NETCPP::HttpRequest &req, NETCPP::HttpResponse &resp) {
+  server.POST("/teacher", [](NETCPP::HttpContext &ctx) {
+    auto &req = ctx.GetRequest();
+    auto &resp = ctx.GetResponse();
     resp.SetStatusCode(200);
     resp.SetStatusMessage("OK");
     resp.SetHeader("Content-Type", "application/json;charset=utf-8");

@@ -3,7 +3,7 @@
 //
 
 #include "HttpRequest.h"
-bool NETCPP::HttpRequest::Parse(asio::streambuf &buffer) {
+bool NETCPP::HttpRequest::Parse(Buffer &buffer) {
 
   while (state_ != kDone) {
     if (state_ == kBody) {
@@ -18,12 +18,12 @@ bool NETCPP::HttpRequest::Parse(asio::streambuf &buffer) {
       ParseBody(buffer);
       continue;
     }
-    std::istream input(&buffer);
+
     std::string line;
-    if (!std::getline(input, line, '\r')) {
+    if (!buffer.getCRLF(line)) {
       return false;
     }
-    input.ignore(1);
+    buffer.discard(line.size() + 2);
     if (state_ == kRequestLine) {
       ParseRequestLine(line);
       state_ = kHeaders;
@@ -63,14 +63,24 @@ void NETCPP::HttpRequest::ParseHeader(const std::string &line) {
   auto value = line.substr(pos + 1);
   headers_[key] = value;
 }
-void NETCPP::HttpRequest::ParseBody(asio::streambuf &buffer) {
+void NETCPP::HttpRequest::ParseBody(Buffer &buffer) {
   if (content_length_ == 0) {
     state_ = kDone;
     return;
   }
-  auto sz = std::min(buffer.size(), content_length_);
-  std::copy(asio::buffers_begin(buffer.data()), asio::buffers_begin(buffer.data()) + sz,
-            std::back_inserter(body_));
+  auto sz = content_length_;
+  auto begin = buffer.getBuffer(sz);
+  body_.insert(body_.end(), begin, begin + sz);
   content_length_ -= sz;
-  buffer.consume(sz);
+  buffer.discard(sz);
+}
+std::string NETCPP::HttpRequest::ToString() const {
+  std::string str;
+  str += method_ + " " + path_ + " " + version_ + "\r\n";
+  for (const auto &header : headers_) {
+    str += header.first + ": " + header.second + "\r\n";
+  }
+  str += "\r\n";
+  str += body_;
+  return str;
 }

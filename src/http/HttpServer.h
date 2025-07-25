@@ -15,17 +15,19 @@ namespace NETCPP {
 
 class HttpContext {
  public:
-  HttpContext(ConnectionPtr ptr) : response_(std::move(ptr)) {}
+  HttpContext(ConnectionPtr ptr) : connection_(ptr), response_() {}
   ~HttpContext() = default;
   void SetRequest(const HttpRequest &req) { request_ = req; }
   void SetResponse(const HttpResponse &resp) { response_ = resp; }
   HttpRequest &GetRequest() { return request_; }
   HttpResponse &GetResponse() { return response_; }
+  ConnectionPtr GetConnection() { return connection_.lock(); }
  private:
+  std::weak_ptr<Connection> connection_;
   HttpRequest request_;
   HttpResponse response_;
 };
-
+typedef std::function<void(HttpContext &ctx)> HttpHandler;
 class Router {
  public:
   void addRoute(const HTTP_METHOD &method, const std::string &path, const HttpHandler &handler);
@@ -33,9 +35,9 @@ class Router {
  private:
   std::unordered_map<HTTP_METHOD, std::unordered_map<std::string, HttpHandler >> routes_;
 };
+
 class HttpServer {
  public:
-
   HttpServer(asio::io_context &io_context, asio::ip::tcp::endpoint endpoint)
       : tcp_server_(io_context, std::move(endpoint)) {
   }
@@ -66,7 +68,7 @@ class HttpServer {
   Router router_;
   void TcpReadCallback(ConnectionPtr ptr);
 
-  void Dispatch(const HttpRequest &req, HttpResponse &resp);
+  void Dispatch(HttpContext &ctx);
 
   HttpHandler handler_;
   TcpServer tcp_server_;

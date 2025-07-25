@@ -16,7 +16,8 @@ class Acceptor : public std::enable_shared_from_this<Acceptor> {
       : acceptor_(io_context, endpoint), next_conn_id_(0), server_(server) {
   }
 
-  void SetReadCallback(const std::function<void(asio::ip::tcp::socket &socket)> &read_callback) {
+  void SetReadCallback(const std::function<void(asio::ip::tcp::socket &socket,
+                                                asio::io_context &io_context)> &read_callback) {
     read_callback_ = read_callback;
   }
   void start() {
@@ -25,7 +26,7 @@ class Acceptor : public std::enable_shared_from_this<Acceptor> {
  private:
   void doAccept();
   TcpServer *server_;
-  std::function<void(asio::ip::tcp::socket &socket)> read_callback_;
+  std::function<void(asio::ip::tcp::socket &socket, asio::io_context &io_context)> read_callback_;
   asio::ip::tcp::acceptor acceptor_;
   int next_conn_id_;
 };

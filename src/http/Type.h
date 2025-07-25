@@ -11,7 +11,7 @@
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 namespace NETCPP {
-typedef std::function<void(const HttpRequest &req, HttpResponse &resp)> HttpHandler;
+
 enum class HTTP_METHOD {
   GET,
   POST,

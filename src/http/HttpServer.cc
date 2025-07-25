@@ -14,11 +14,11 @@ void NETCPP::HttpServer::TcpReadCallback(NETCPP::ConnectionPtr ptr) {
     return;
   }
   if (!handler_) {
-    handler_ = [this](const HttpRequest &req, HttpResponse &resp) {
-      Dispatch(req, resp);
+    handler_ = [this](HttpContext &ctx) {
+      Dispatch(ctx);
     };
   }
-  handler_(context.GetRequest(), context.GetResponse());
+  handler_(context);
   ptr->Write(context.GetResponse().ToString());
   ptr->ShutDown();
 }
@@ -36,10 +36,12 @@ void HttpServer::PUT(const std::string &path, const HttpHandler &handler) {
 void HttpServer::GET(const std::string &path, const HttpHandler &handler) {
   AddRoute(HTTP_METHOD::GET, path, handler);
 }
-void HttpServer::Dispatch(const HttpRequest &req, HttpResponse &resp) {
+void HttpServer::Dispatch(HttpContext &ctx) {
+  auto &req = ctx.GetRequest();
+  auto &resp = ctx.GetResponse();
   auto handler = router_.getHandler(req.GetMethod(), req.GetPath());
   if (handler) {
-    handler(req, resp);
+    handler(ctx);
   } else {
     resp.SetStatusCode(404);
     resp.SetStatusMessage("Not Found");

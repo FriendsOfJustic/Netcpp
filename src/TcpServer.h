@@ -37,6 +37,7 @@ class TcpServer {
   EventLoopThreadPool thread_pool_;
   NETCPP::Acceptor *acceptor_;
   int next_conn_id_;
+  void NewConnection(asio::ip::tcp::socket &sock, asio::io_context &io_context);
 };
 }
 
