@@ -23,6 +23,13 @@ int main(int argc, char *argv[]) {
     resp.SetStatusCode(200);
     resp.SetStatusMessage("OK");
     resp.SetHeader("Content-Type", "application/json;charset=utf-8");
+
+    // 设置跨域
+    resp.SetHeader("Access-Control-Allow-Origin", "*");
+    resp.SetHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    resp.SetHeader("Access-Control-Allow-Headers", "Content-Type");
+    resp.SetHeader("Access-Control-Expose-Headers", "Content-Type");
+
     nlohmann::json students = nlohmann::json::array();
 
     // 添加第一个学生信息
@@ -92,6 +99,12 @@ int main(int argc, char *argv[]) {
     resp.SetStatusCode(200);
     resp.SetStatusMessage("OK");
     resp.SetHeader("Content-Type", "application/json;charset=utf-8");
+    // 设置跨域
+    resp.SetHeader("Access-Control-Allow-Origin", "*");
+    resp.SetHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    resp.SetHeader("Access-Control-Allow-Headers", "Content-Type");
+    resp.SetHeader("Access-Control-Expose-Headers", "Content-Type");
+
     nlohmann::json teacher = nlohmann::json::array();
     teacher.push_back({
                           {"teacherId", "2023001"},
