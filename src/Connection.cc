@@ -43,6 +43,10 @@ void Connection::doRead() {
                           });
 }
 void Connection::doWrite() {
+  // Check if socket is open before writing
+  if (!socket_.is_open()) {
+    return;
+  }
 
   if (write_buffer_.size() == 0) {
     if (write_complete_callback_) {
@@ -72,10 +76,15 @@ void Connection::doWrite() {
 void Connection::onFinishWrite(const asio::error_code &error, size_t bytes_transferred) {
   if (error) {
     spdlog::error("connection: {} write error: {} {}:{}", name_, error.message(), __FILE__, __LINE__);
-    std::error_code ec;
-    socket_.shutdown(asio::socket_base::shutdown_send, ec);
-    if (ec) {
-      spdlog::error("connection: {} shutdown error: {} {}:{}", name_, ec.message(), __FILE__, __LINE__);
+
+    // Only attempt shutdown if socket is still open
+    if (socket_.is_open()) {
+      std::error_code ec;
+      socket_.shutdown(asio::socket_base::shutdown_send, ec);
+      if (ec) {
+        spdlog::error("connection: {} shutdown error: {} {}:{}", name_, ec.message(), __FILE__, __LINE__);
+      }
+      socket_.close(); // Ensure socket is closed after error
     }
     return;
   }
