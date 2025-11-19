@@ -22,6 +22,7 @@ void NETCPP::TcpServer::start() {
 void NETCPP::TcpServer::NewConnection(asio::ip::tcp::socket &sock, asio::io_context &io_context) {
   auto name = "conn-" + std::to_string(next_conn_id_++);
   auto conn = std::make_shared<Connection>(name, sock, io_context);
+  spdlog::info("new connection name: {}", name);
   conn->SetReadCallback(read_callback_);
   conn->SetWriteCompleteCallback(write_complete_callback_);
   conn->start();

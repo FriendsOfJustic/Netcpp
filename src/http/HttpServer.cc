@@ -21,7 +21,7 @@ void NETCPP::HttpServer::TcpReadCallback(NETCPP::ConnectionPtr ptr) {
   }
   handler_(context);
   ptr->Write(context.GetResponse().ToString());
-  // ptr->ShutDown();
+  ptr->ShutDown();
 }
 
 void NETCPP::HttpServer::AddRoute(const HTTP_METHOD &method,
