@@ -5,6 +5,7 @@
 #include "HttpServer.h"
 using namespace NETCPP;
 #include "Type.h"
+
 void NETCPP::HttpServer::TcpReadCallback(NETCPP::ConnectionPtr ptr) {
   if (!ptr->Context().has_value()) {
     ptr->SetContext(std::make_any<HttpContext>(ptr));
@@ -20,22 +21,27 @@ void NETCPP::HttpServer::TcpReadCallback(NETCPP::ConnectionPtr ptr) {
   }
   handler_(context);
   ptr->Write(context.GetResponse().ToString());
-  ptr->ShutDown();
+  // ptr->ShutDown();
 }
+
 void NETCPP::HttpServer::AddRoute(const HTTP_METHOD &method,
                                   const std::string &path,
                                   const HttpHandler &handler) {
   router_.addRoute(method, path, handler);
 }
+
 void HttpServer::POST(const std::string &path, const HttpHandler &handler) {
   AddRoute(HTTP_METHOD::POST, path, handler);
 }
+
 void HttpServer::PUT(const std::string &path, const HttpHandler &handler) {
   AddRoute(HTTP_METHOD::PUT, path, handler);
 }
+
 void HttpServer::GET(const std::string &path, const HttpHandler &handler) {
   AddRoute(HTTP_METHOD::GET, path, handler);
 }
+
 void HttpServer::Dispatch(HttpContext &ctx) {
   auto &req = ctx.GetRequest();
   auto &resp = ctx.GetResponse();
@@ -53,6 +59,7 @@ void HttpServer::Dispatch(HttpContext &ctx) {
 void Router::addRoute(const HTTP_METHOD &method, const std::string &path, const HttpHandler &handler) {
   routes_[method][path] = handler;
 }
+
 HttpHandler Router::getHandler(const std::string &method, const std::string &path) const {
   auto method_it = routes_.find(STRING2HTTP_METHOD[method]);
   if (method_it != routes_.end()) {
