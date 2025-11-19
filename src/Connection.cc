@@ -37,10 +37,33 @@ namespace NETCPP {
   void Connection::doRead() {
     auto self = shared_from_this();
     std::shared_ptr<std::vector<char> > array = std::make_shared<std::vector<char> >(1024 * 32);
+
     socket_.async_read_some(asio::buffer(*array),
                             [this, self, array](const asio::error_code &error, size_t bytes_transferred) {
+                              if (error) {
+                                switch (error.value()) {
+                                  case asio::error::eof: {
+                                    if (close_callback_) {
+                                      close_callback_(shared_from_this());
+                                    }
+                                    socket_.close();
+                                    break;
+                                  }
+                                  default: {
+                                    if (error_callback_) {
+                                      error_callback_(shared_from_this(), error);
+                                    }
+                                    spdlog::error("connection: {} read error: {} {}:{}", name_, error.message(),
+                                                  __FILE__, __LINE__);
+                                  }
+                                }
+                                return;
+                              }
                               read_buffer_.write(array->data(), bytes_transferred);
-                              onFinishRead(error, bytes_transferred);
+                              if (read_callback_) {
+                                read_callback_(shared_from_this());
+                              }
+                              doRead();
                             });
   }
 
@@ -68,6 +91,15 @@ namespace NETCPP {
       write_buffer_.discard(len);
       doWrite();
     });
+  }
+
+  void Connection::ShutDown() {
+    if (write_buffer_.size() == 0) {
+      asio::error_code ec;
+      socket_.shutdown(asio::socket_base::shutdown_send, ec);
+    } else {
+      is_shutdown_ = true;
+    }
   }
 
   void Connection::Write(const std::string &message) {
