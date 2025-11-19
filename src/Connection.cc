@@ -54,7 +54,7 @@ namespace NETCPP {
     }
     asio::post(io_context_, [this]() {
       asio::error_code ec;
-      size_t sz = std::min(65535ULL, write_buffer_.size());
+      size_t sz = std::min(static_cast<size_t>(65535), write_buffer_.size());
       const auto len = socket_.write_some(asio::buffer(write_buffer_.getReadPos(), sz), ec);
       if (ec) {
         spdlog::info("error while writing: {}", ec.message());
