@@ -4,12 +4,12 @@
 
 #ifndef NETCPP_SRC_CONNECTION_H_
 #define NETCPP_SRC_CONNECTION_H_
+
 #include <string>
 #include <utility>
 #include "memory"
 #include "asio.hpp"
 #include "Buffer.h"
-#include "stdexcept"
 #include "spdlog/spdlog.h"
 
 namespace NETCPP {
@@ -55,6 +55,8 @@ namespace NETCPP {
     void Write(const std::string &message);
 
     void Write(const char *data, size_t len);
+
+    void SendFile(const std::string &path);
 
     std::any &Context() { return context_; }
     void SetContext(std::any context) { context_ = std::move(context); }

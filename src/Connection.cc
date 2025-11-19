@@ -3,8 +3,9 @@
 //
 
 #include "Connection.h"
-#include "iostream"
+#include <filesystem>
 #include "spdlog/spdlog.h"
+
 
 namespace NETCPP {
   void Connection::onFinishRead(const asio::error_code &error, size_t bytes_transferred) {
@@ -123,6 +124,24 @@ namespace NETCPP {
     if (len > 0) {
       write_buffer_.write(data, len);
       doWrite();
+    }
+  }
+
+
+  void Connection::SendFile(const std::string &p) {
+    using namespace std::filesystem;
+    path file_path = p;
+    if (!exists(p)) {
+      throw std::invalid_argument("path does not exist");
+    }
+    // 获取文件大小
+    uint64_t sz = file_size(file_path);
+
+
+    if (sz < 1024 * 1024ULL) {
+      // 使用sendfile 接口
+    } else {
+      // direct IO
     }
   }
 } // NETCPP
