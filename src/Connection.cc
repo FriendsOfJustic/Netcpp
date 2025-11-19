@@ -6,8 +6,25 @@
 #include <filesystem>
 #include "spdlog/spdlog.h"
 
-
 namespace NETCPP {
+  void Connection::doWriteFile() {
+    if (file_info_->offset == file_info_->total_size) {
+      fclose(file_info_->fd);
+      file_info_ = nullptr;
+      if (write_complete_callback_) {
+        write_complete_callback_(shared_from_this());
+      }
+      return;
+    }
+    asio::post(io_context_, [this]() {
+      char buffer[65535];
+      auto send_sz = std::min(static_cast<size_t>(65535), file_info_->total_size - file_info_->offset);
+      fread(buffer, 1, send_sz, file_info_->fd);
+      auto actual_sz = socket_.write_some(asio::buffer(buffer, send_sz));
+      file_info_->offset += actual_sz;
+    });
+  }
+
   void Connection::onFinishRead(const asio::error_code &error, size_t bytes_transferred) {
     if (error) {
       switch (error.value()) {
@@ -73,7 +90,8 @@ namespace NETCPP {
       return;
     }
     if (write_buffer_.size() == 0) {
-      if (write_complete_callback_) write_complete_callback_(shared_from_this());
+      if (write_complete_callback_)
+        write_complete_callback_(shared_from_this());
       if (is_shutdown_) {
         asio::error_code ec;
         spdlog::info("server shutting down");
@@ -111,6 +129,9 @@ namespace NETCPP {
     if (!socket_.is_open()) {
       return;
     }
+    if (file_info_) {
+      throw std::logic_error("can not write msg while file is sending");
+    }
     asio::error_code ec;
     if (write_buffer_.size() == 0) {
       auto sz = socket_.write_some(asio::buffer(data, len), ec);
@@ -136,12 +157,15 @@ namespace NETCPP {
     }
     // 获取文件大小
     uint64_t sz = file_size(file_path);
-
-
-    if (sz < 1024 * 1024ULL) {
-      // 使用sendfile 接口
-    } else {
-      // direct IO
-    }
+    uint64_t send_sz = std::min(static_cast<uint64_t>(65535), sz);
+    auto file = fopen(p.c_str(), "rb");
+    char buffer[65535];
+    fread(buffer, 1, send_sz, file);
+    auto actual_sz = socket_.write_some(asio::buffer(buffer, send_sz));
+    file_info_ = std::make_unique<FileInfo>();
+    file_info_->fd = file;
+    file_info_->offset = actual_sz;
+    file_info_->total_size = sz;
+    doWriteFile();
   }
 } // NETCPP

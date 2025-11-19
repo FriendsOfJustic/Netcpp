@@ -18,6 +18,12 @@ namespace NETCPP {
 
   class Connection : public std::enable_shared_from_this<Connection> {
   public:
+    struct FileInfo {
+      FILE *fd;
+      uint64_t offset;
+      uint64_t total_size;
+    };
+
     Connection(std::string name, asio::ip::tcp::socket &socket, asio::io_context &io_context)
       : socket_(std::move(socket)), name_(std::move(name)), io_context_(io_context) {
     }
@@ -79,12 +85,14 @@ namespace NETCPP {
     std::any context_;
     bool is_shutdown_ = false;
 
+
+    void doWriteFile();
+
     void onFinishRead(const asio::error_code &error, size_t bytes_transferred);
 
-    void onFinishWrite(const asio::error_code &error, size_t bytes_transferred);
 
     std::string name_;
-
+    std::unique_ptr<FileInfo> file_info_ = nullptr;
     asio::io_context &io_context_;
     std::function<void(ConnectionPtr ptr)> read_callback_;
     std::function<void(ConnectionPtr ptr)> write_complete_callback_;
