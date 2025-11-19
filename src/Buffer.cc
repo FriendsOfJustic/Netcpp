@@ -43,6 +43,15 @@ void Buffer::read(char *data, size_t len) {
   std::copy(buffer_.begin() + read_pos_, buffer_.begin() + read_pos_ + len, data);
   read_pos_ += len;
 }
+
+std::string Buffer::Retrieve(size_t len) {
+  std::string ret;
+  auto sz=std::min(len, size());
+  ret.append(getReadPos(), sz);
+  read_pos_ += sz;
+  return ret;
+}
+
 void Buffer::discard(size_t len) {
   if (len > size()) {
     len = size();

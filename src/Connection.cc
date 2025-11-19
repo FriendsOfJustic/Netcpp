@@ -5,103 +5,87 @@
 #include "Connection.h"
 #include "iostream"
 #include "spdlog/spdlog.h"
+
 namespace NETCPP {
-
-void Connection::onFinishRead(const asio::error_code &error, size_t bytes_transferred) {
-  if (error) {
-    switch (error.value()) {
-      case asio::error::eof: {
-        if (close_callback_) {
-          close_callback_(shared_from_this());
+  void Connection::onFinishRead(const asio::error_code &error, size_t bytes_transferred) {
+    if (error) {
+      switch (error.value()) {
+        case asio::error::eof: {
+          if (close_callback_) {
+            close_callback_(shared_from_this());
+          }
+          socket_.close();
+          break;
         }
-        socket_.close();
-        break;
-      }
-      default: {
-        if (error_callback_) {
-          error_callback_(shared_from_this(), error);
+        default: {
+          if (error_callback_) {
+            error_callback_(shared_from_this(), error);
+          }
+          spdlog::error("connection: {} read error: {} {}:{}", name_, error.message(), __FILE__, __LINE__);
         }
-        spdlog::error("connection: {} read error: {} {}:{}", name_, error.message(), __FILE__, __LINE__);
       }
+      return;
     }
-    return;
+
+    // TODO 处理数据
+    if (read_callback_) {
+      read_callback_(shared_from_this());
+    }
+    doRead();
   }
 
-  // TODO 处理数据
-  if (read_callback_) {
-    read_callback_(shared_from_this());
-  }
-  doRead();
-}
-void Connection::doRead() {
-  auto self = shared_from_this();
-  std::shared_ptr<std::vector<char>> array = std::make_shared<std::vector<char>>(1024 * 32);
-  socket_.async_read_some(asio::buffer(*array),
-                          [this, self, array](const asio::error_code &error, size_t bytes_transferred) {
-                            read_buffer_.write(array->data(), bytes_transferred);
-                            onFinishRead(error, bytes_transferred);
-                          });
-}
-void Connection::doWrite() {
-  // Check if socket is open before writing
-  if (!socket_.is_open()) {
-    return;
+  void Connection::doRead() {
+    auto self = shared_from_this();
+    std::shared_ptr<std::vector<char> > array = std::make_shared<std::vector<char> >(1024 * 32);
+    socket_.async_read_some(asio::buffer(*array),
+                            [this, self, array](const asio::error_code &error, size_t bytes_transferred) {
+                              read_buffer_.write(array->data(), bytes_transferred);
+                              onFinishRead(error, bytes_transferred);
+                            });
   }
 
-  if (write_buffer_.size() == 0) {
-    if (write_complete_callback_) {
-      write_complete_callback_(shared_from_this());
+  void Connection::doWrite() {
+    if (!socket_.is_open()) {
+      return;
     }
-    if (is_shutdown_ && socket_.is_open()) {
-      std::error_code ec;
-      socket_.shutdown(asio::socket_base::shutdown_send, ec);
+    if (write_buffer_.size() == 0) {
+      if (write_complete_callback_) write_complete_callback_(shared_from_this());
+      return;
+    }
+    asio::post(io_context_, [this]() {
+      asio::error_code ec;
+      size_t sz = std::min(65535ULL, write_buffer_.size());
+      const auto len = socket_.write_some(asio::buffer(write_buffer_.getReadPos(), sz), ec);
       if (ec) {
-        socket_.close();
+        spdlog::info("error while writing: {}", ec.message());
         return;
       }
-    }
-    return;
+      write_buffer_.discard(len);
+      doWrite();
+    });
   }
-  auto self = shared_from_this();
-  size_t len = 65535;
-  auto begin = write_buffer_.getBuffer(len);
-  auto send_buf = std::make_shared<std::vector<char>>(begin, begin + len);
-  write_buffer_.discard(len);
-  socket_.async_write_some(asio::buffer(*send_buf),
-                           [this, self, send_buf](const asio::error_code &error,
-                                                  size_t bytes_transferred) {
-                             onFinishWrite(error, bytes_transferred);  // 调用回调函数
-                           });
-}
-void Connection::onFinishWrite(const asio::error_code &error, size_t bytes_transferred) {
-  if (error) {
-    spdlog::error("connection: {} write error: {} {}:{}", name_, error.message(), __FILE__, __LINE__);
 
-    // Only attempt shutdown if socket is still open
-    if (socket_.is_open()) {
-      std::error_code ec;
-      socket_.shutdown(asio::socket_base::shutdown_send, ec);
-      if (ec) {
-        spdlog::error("connection: {} shutdown error: {} {}:{}", name_, ec.message(), __FILE__, __LINE__);
-      }
-      socket_.close(); // Ensure socket is closed after error
+  void Connection::Write(const std::string &message) {
+    Write(message.data(), message.size());
+  }
+
+  void Connection::Write(const char *data, size_t len) {
+    if (!socket_.is_open()) {
+      return;
     }
-    return;
+    asio::error_code ec;
+    if (write_buffer_.size() == 0) {
+      auto sz = socket_.write_some(asio::buffer(data, len), ec);
+      if (ec) {
+        spdlog::info("error while writing: {}", ec.message());
+      } else {
+        data += sz;
+        len -= sz;
+      }
+    }
+    if (len > 0) {
+      write_buffer_.write(data, len);
+      doWrite();
+    }
   }
-  doWrite();
-}
-void Connection::Write(const std::string &message) {
-  if (!socket_.is_open()) {
-    return;
-  }
-  write_buffer_.write(message.data(), message.size());
-  doWrite();
-}
-void Connection::Write(const char *data, size_t len) {
-  if (!socket_.is_open()) {
-    return;
-  }
-  write_buffer_.write(data, len);
-  doWrite();
-}
 } // NETCPP

@@ -49,12 +49,12 @@ int main(int argc, char *argv[]) {
 //
 //  });
 
-  server.GET("/", [](const NETCPP::HttpRequest &req, NETCPP::HttpResponse &resp) {
-    resp.SetStatusCode(200);
-    resp.SetStatusMessage("OK");
-    resp.SetHeader("Content-Type", "text/plain;charset=utf-8");
-    resp.SetBody("Hello, world! \r\n 老谢是一只猪 我喜欢老谢💩💩💩💩💩💩💩💩\r\n love you~ ❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️");
-  });
+  // server.GET("/", [](const NETCPP::HttpRequest &req, NETCPP::HttpResponse &resp) {
+  //   resp.SetStatusCode(200);
+  //   resp.SetStatusMessage("OK");
+  //   resp.SetHeader("Content-Type", "text/plain;charset=utf-8");
+  //   resp.SetBody("Hello, world! \r\n 老谢是一只猪 我喜欢老谢💩💩💩💩💩💩💩💩\r\n love you~ ❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️");
+  // });
   server.SetThreadNum(4);
   server.start();
   io_context.run();

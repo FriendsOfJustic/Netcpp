@@ -9,6 +9,22 @@ include_directories(third_party/json/include)
 include_directories(third_party/spdlog/include)
 aux_source_directory(${CMAKE_SOURCE_DIR}/src SRC_LIST)
 aux_source_directory(${CMAKE_SOURCE_DIR}/src/http SRC_LIST)
+if(WIN32)
+    # Define _WIN32_WINNT (target Windows 7 or later)
+    # Options for _WIN32_WINNT:
+    # - 0x0601 = Windows 7
+    # - 0x0602 = Windows 8
+    # - 0x0603 = Windows 8.1
+    # - 0x0A00 = Windows 10
+    # - 0x0A01 = Windows 11
+    add_compile_definitions(_WIN32_WINNT=0x0601)
+
+    # Optional: Reduce Windows API bloat
+    add_compile_definitions(WIN32_LEAN_AND_MEAN)
+
+    # Link required Windows libraries (Asio needs ws2_32 for Winsock)
+    set(WINDOWS_LIBS ws2_32.lib mswsock.lib advapi32.lib)
+endif()
 # 检查是否为MSVC编译器
 if (MSVC)
     # 设置源文件编码为UTF-8

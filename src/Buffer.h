@@ -34,6 +34,8 @@ class Buffer {
     }
     return buffer_.data() + read_pos_;
   }
+
+    std::string Retrieve(size_t len);
  private:
   std::vector<char> buffer_;
   size_t read_pos_;
