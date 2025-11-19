@@ -52,6 +52,7 @@ namespace NETCPP {
       if (write_complete_callback_) write_complete_callback_(shared_from_this());
       if (is_shutdown_) {
         asio::error_code ec;
+        spdlog::info("server shutting down");
         socket_.shutdown(asio::socket_base::shutdown_send, ec);
       }
       return;
