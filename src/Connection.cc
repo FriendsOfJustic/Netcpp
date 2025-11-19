@@ -50,6 +50,10 @@ namespace NETCPP {
     }
     if (write_buffer_.size() == 0) {
       if (write_complete_callback_) write_complete_callback_(shared_from_this());
+      if (is_shutdown_) {
+        asio::error_code ec;
+        socket_.shutdown(asio::socket_base::shutdown_send, ec);
+      }
       return;
     }
     asio::post(io_context_, [this]() {
