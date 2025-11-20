@@ -1,0 +1,2 @@
+/usr/bin/ar qc libnetcpp_static.a CMakeFiles/netcpp_static.dir/src/Acceptor.cc.o CMakeFiles/netcpp_static.dir/src/Buffer.cc.o CMakeFiles/netcpp_static.dir/src/Connection.cc.o CMakeFiles/netcpp_static.dir/src/EventLoopThread.cc.o CMakeFiles/netcpp_static.dir/src/TcpClient.cc.o CMakeFiles/netcpp_static.dir/src/TcpServer.cc.o CMakeFiles/netcpp_static.dir/src/http/HttpRequest.cc.o CMakeFiles/netcpp_static.dir/src/http/HttpResponse.cc.o CMakeFiles/netcpp_static.dir/src/http/HttpServer.cc.o CMakeFiles/netcpp_static.dir/src/http/Type.cc.o
+/usr/bin/ranlib libnetcpp_static.a

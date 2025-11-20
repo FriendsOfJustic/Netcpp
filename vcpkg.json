@@ -1,0 +1,16 @@
+{
+    "name": "netcpp",
+    "version": "1.0.0",
+    "description": "Project with asio, spdlog and nlohmann-json dependencies",
+    "dependencies": [
+        {
+            "name": "asio"
+        },
+        {
+            "name": "spdlog"
+        },
+        {
+            "name": "nlohmann-json"
+        }
+    ]
+}

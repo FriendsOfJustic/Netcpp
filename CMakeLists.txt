@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-# 启用 CMP0135 NEW 行为（优先推荐）
-if (POLICY CMP0135)
-    cmake_policy(SET CMP0135 NEW)
-endif ()
+
 project(Netcpp)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -36,13 +33,17 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 
 message(STATUS "src_list: ${SRC_LIST}")
-add_executable(test1 tests/test1.cc ${SRC_LIST}
-        src/TcpClient.h
-        src/TcpClient.cc
-        app/proxy/http_proxy.cc
-        src/Buffer.cc
-        src/Buffer.h)
-add_executable(test2 tests/test_http_server.cc ${SRC_LIST})
 
+add_library(netcpp_static STATIC ${SRC_LIST})
+
+link_libraries(netcpp_static)
+file(GLOB TEST_SOURCE ${CMAKE_CURRENT_LIST_DIR}/tests/*.cc ${CMAKE_CURRENT_LIST_DIR}/tests/*.cpp)
+
+
+foreach(TEST_FILE ${TEST_SOURCE})
+    get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_FILE})
+  
+endforeach()
 
 add_subdirectory(app)

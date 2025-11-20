@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/test_tcp_server.dir/tests/test_tcp_server.cc.o -o test_tcp_server  libnetcpp_static.a vcpkg_installed/x64-linux/debug/lib/libfmtd.a 
