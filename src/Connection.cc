@@ -52,6 +52,12 @@ namespace NETCPP {
     doRead();
   }
 
+  Connection::Connection(std::string name, asio::ip::tcp::socket &socket,
+                         asio::io_context &io_context) : socket_(std::move(socket)), name_(std::move(name)),
+                                                         io_context_(io_context) {
+    socket_.non_blocking(true);
+  }
+
   void Connection::doRead() {
     auto self = shared_from_this();
     std::shared_ptr<std::vector<char> > array = std::make_shared<std::vector<char> >(1024 * 32);
@@ -147,8 +153,7 @@ namespace NETCPP {
       doWrite();
     }
   }
-
-
+#ifdef WIN32
   void Connection::SendFile(const std::string &p) {
     using namespace std::filesystem;
     path file_path = p;
@@ -168,4 +173,5 @@ namespace NETCPP {
     file_info_->total_size = sz;
     doWriteFile();
   }
+#endif
 } // NETCPP

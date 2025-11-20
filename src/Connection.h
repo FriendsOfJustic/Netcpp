@@ -24,9 +24,7 @@ namespace NETCPP {
       uint64_t total_size;
     };
 
-    Connection(std::string name, asio::ip::tcp::socket &socket, asio::io_context &io_context)
-      : socket_(std::move(socket)), name_(std::move(name)), io_context_(io_context) {
-    }
+    Connection(std::string name, asio::ip::tcp::socket &socket, asio::io_context &io_context);
 
     void SetReadCallback(const std::function<void(ConnectionPtr ptr)> &read_callback) {
       read_callback_ = read_callback;
