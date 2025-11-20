@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/test_http_server.dir/tests/test_http_server.cc.o -o test_http_server  libnetcpp_static.a vcpkg_installed/x64-linux/debug/lib/libfmtd.a 
