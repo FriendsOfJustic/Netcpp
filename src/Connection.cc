@@ -206,7 +206,11 @@ void Connection::doRead() {
         }
         read_buffer_.write(array->data(), bytes_transferred);
         if (read_callback_) {
-          read_callback_(shared_from_this());
+          try {
+            read_callback_(shared_from_this());
+          } catch (const std::exception& e) {
+            spdlog::error("read callback error: {} ", e.what());
+          }
         }
 
         doRead();
@@ -226,18 +230,19 @@ void Connection::doWrite() {
     }
     return;
   }
-  asio::post(io_context_, [this]() {
-    asio::error_code ec;
-    size_t sz = std::min(static_cast<size_t>(65535), write_buffer_.size());
-    const auto len =
-        socket_.write_some(asio::buffer(write_buffer_.getReadPos(), sz), ec);
-    if (ec) {
-      spdlog::info("error while writing: {}", ec.message());
-      return;
-    }
-    write_buffer_.discard(len);
-    doWrite();
-  });
+  socket_.async_wait(
+      asio::socket_base::wait_write, [this](const asio::error_code& error) {
+        asio::error_code ec;
+        size_t sz = std::min(static_cast<size_t>(65535), write_buffer_.size());
+        const auto len = socket_.write_some(
+            asio::buffer(write_buffer_.getReadPos(), sz), ec);
+        if (ec) {
+          spdlog::info("error while writing: {}", ec.message());
+          return;
+        }
+        write_buffer_.discard(len);
+        doWrite();
+      });
 }
 
 void Connection::ShutDown() {
