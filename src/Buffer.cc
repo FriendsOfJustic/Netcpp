@@ -68,7 +68,7 @@ namespace NETCPP {
     read_pos_ += len;
   }
 
-  std::string Buffer::Retrieve(size_t len) {
+  std::string Buffer::retrieveString(size_t len) {
     std::string ret;
     auto sz = std::min(len, size());
     ret.append(getReadPos(), sz);

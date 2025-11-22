@@ -52,7 +52,7 @@ namespace NETCPP {
       return buffer_.data() + read_pos_;
     }
 
-    std::string Retrieve(size_t len);
+    std::string retrieveString(size_t len);
 
 
     int32_t peekInt32();

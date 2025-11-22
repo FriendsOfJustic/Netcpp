@@ -6,6 +6,10 @@
 #include "./proto/test.pb.h"
 #include <google/protobuf/message.h>
 
+#include "Buffer.h"
+#include "protobuf/Codec.h"
+
+
 google::protobuf::Message *createMessage(const std::string &typeName) {
     // 1. 初始化返回值：默认NULL（类型名无效时返回）
     google::protobuf::Message *message = NULL;
@@ -50,7 +54,33 @@ int main() {
     if (msg2) {
         std::cout << "create message success" << std::endl;
         msg2->set_age(1);
+        msg2->add_hobbies("aaaa");
+        msg2->add_hobbies("bbbb");
     } else {
         std::cout << "create message failed" << std::endl;
+    }
+
+
+    auto ptr = std::make_shared<demo::UserInfo>(*msg2);
+    NETCPP::Buffer buffer;
+
+
+    NETCPP::Codec codec;
+
+    codec.serialize(ptr, buffer);
+
+    NETCPP::BaseMessagePtr resp;
+    auto ret = codec.deSerialize(buffer, resp);
+    if (ret) {
+        std::cout << "deSerialize success" << std::endl;
+        auto msg = dynamic_cast<demo::UserInfo *>(resp.get());
+        if (msg) {
+            std::cout << "age: " << msg->age() << std::endl;
+            for (int i = 0; i < msg->hobbies_size(); i++) {
+                std::cout << "hobby: " << msg->hobbies(i) << std::endl;
+            }
+        }
+    } else {
+        std::cout << "deSerialize failed" << std::endl;
     }
 }

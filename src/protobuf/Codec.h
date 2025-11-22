@@ -37,13 +37,22 @@ namespace NETCPP {
     public:
         static BaseMessagePtr createMessage(const std::string &typeName);
 
+        static uint32_t crc32_table[256];
+
+        // 初始化CRC32表（基于IEEE标准）
+        static void init_crc32_table();
+
+        static uint32_t crc32(const std::string &str);
+
         bool deSerialize(Buffer &buffer, BaseMessagePtr &message);
 
         void serialize(BaseMessagePtr message, Buffer &buffer);
 
-    private:
+    private
+    :
         const static int32_t FieldLenSize = 4;
         const static int32_t FieldTypeNameLenSize = 4;
+        const static int32_t FieldCheckSumLenSize = 4;
     };
 } // NETCPP
 
