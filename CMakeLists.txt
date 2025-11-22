@@ -28,22 +28,22 @@ endif ()
 find_package(asio CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-link_libraries(nlohmann_json::nlohmann_json spdlog::spdlog_header_only asio::asio)
+find_package(protobuf CONFIG REQUIRED)
+link_libraries(nlohmann_json::nlohmann_json spdlog::spdlog_header_only asio::asio protobuf::libprotobuf protobuf::libprotobuf-lite)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
 
 message(STATUS "src_list: ${SRC_LIST}")
 
 add_library(netcpp_static STATIC ${SRC_LIST})
-
 link_libraries(netcpp_static)
 file(GLOB TEST_SOURCE ${CMAKE_CURRENT_LIST_DIR}/tests/*.cc ${CMAKE_CURRENT_LIST_DIR}/tests/*.cpp)
 
 
-foreach(TEST_FILE ${TEST_SOURCE})
+file(GLOB TEST_PROTO_SOURCE ${CMAKE_CURRENT_LIST_DIR}/tests/proto/*.cc)
+foreach (TEST_FILE ${TEST_SOURCE})
     get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
-    add_executable(${TEST_NAME} ${TEST_FILE})
-  
-endforeach()
+    add_executable(${TEST_NAME} ${TEST_FILE} ${TEST_PROTO_SOURCE})
+endforeach ()
 
 add_subdirectory(app)

@@ -8,41 +8,66 @@
 #include "cstdint"
 
 #include "string"
+
 namespace NETCPP {
+  class Buffer {
+  public:
+    enum Edian {
+      BIG_ENDIAN,
+      LITTLE_ENDIAN,
+    };
 
-class Buffer {
+    static Edian hostEndian;
 
- public:
-  Buffer(size_t capacity = 1024);
-  ~Buffer();
-  size_t size();
-  size_t capacity();
 
-  std::string getLine();
-  bool getCRLF(std::string &line);
+    static int32_t NetToHostInt32(int32_t value);
 
-  void discard(size_t len);
-  void write(const char *data, size_t len);
-  void read(char *data, size_t len);
+    static int32_t HostToNetInt32(int32_t value);
 
-  char *getWritePos() { return buffer_.data() + write_pos_; }
-  char *getReadPos() { return buffer_.data() + read_pos_; }
+    Buffer(size_t capacity = 1024);
 
-  char *getBuffer(size_t &len) {
-    if (len > size()) {
-      len = size();
+    ~Buffer();
+
+    size_t size();
+
+    size_t capacity();
+
+    std::string getLine();
+
+    bool getCRLF(std::string &line);
+
+    void discard(size_t len);
+
+    void write(const char *data, size_t len);
+
+    void read(char *data, size_t len);
+
+    char *getWritePos() { return buffer_.data() + write_pos_; }
+    char *getReadPos() { return buffer_.data() + read_pos_; }
+
+    char *getBuffer(size_t &len) {
+      if (len > size()) {
+        len = size();
+      }
+      return buffer_.data() + read_pos_;
     }
-    return buffer_.data() + read_pos_;
-  }
 
     std::string Retrieve(size_t len);
- private:
-  std::vector<char> buffer_;
-  size_t read_pos_;
-  size_t write_pos_;
-  size_t capacity_;
-};
 
+
+    int32_t peekInt32();
+
+    int32_t retrieveInt32();
+
+
+    void writeInt32(int32_t value);
+
+  private:
+    std::vector<char> buffer_;
+    size_t read_pos_;
+    size_t write_pos_;
+    size_t capacity_;
+  };
 } // NETCPP
 
 #endif //NETCPP_SRC_BUFFER_H_
