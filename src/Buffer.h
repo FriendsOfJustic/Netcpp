@@ -20,11 +20,12 @@ namespace NETCPP {
     static Edian hostEndian;
 
 
-    static int32_t NetToHostInt32(int32_t value);
+    static uint32_t NetToHostInt32(uint32_t value);
 
-    static int32_t HostToNetInt32(int32_t value);
+    static uint32_t HostToNetInt32(uint32_t value);
 
     Buffer(size_t capacity = 1024);
+
 
     ~Buffer();
 
@@ -55,12 +56,12 @@ namespace NETCPP {
     std::string retrieveString(size_t len);
 
 
-    int32_t peekInt32();
+    uint32_t peekUInt32();
 
-    int32_t retrieveInt32();
+    uint32_t retrieveUInt32();
 
 
-    void writeInt32(int32_t value);
+    void writeUInt32(uint32_t value);
 
   private:
     std::vector<char> buffer_;

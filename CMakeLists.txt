@@ -4,10 +4,7 @@ project(Netcpp)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-SET(THIRD_PARTY_DIR ${CMAKE_CURRENT_LIST_DIR}/third_party)
-include_directories(third_party/asio-1.34.2/include)
-include_directories(third_party/json/include)
-include_directories(third_party/spdlog/include)
+
 file(GLOB_RECURSE SRC_LIST ${CMAKE_SOURCE_DIR}/src/*.cc ${CMAKE_SOURCE_DIR}/src/*.cpp)
 if (WIN32)
     add_compile_definitions(_WIN32_WINNT=0x0601)
@@ -29,8 +26,12 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(protobuf CONFIG REQUIRED)
 link_libraries(nlohmann_json::nlohmann_json spdlog::spdlog_header_only asio::asio protobuf::libprotobuf protobuf::libprotobuf-lite)
-include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
 
+option(ENABLE_PROTOBUF_EXTENSIONS "Enable protobuf extensions" ON)
+if (ENABLE_PROTOBUF_EXTENSIONS)
+    add_compile_definitions(ENABLE_PROTOBUF_EXTENSIONS)
+endif ()
 
 message(STATUS "src_list: ${SRC_LIST}")
 

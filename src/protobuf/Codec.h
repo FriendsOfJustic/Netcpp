@@ -22,12 +22,24 @@ namespace NETCPP {
         std::string message(int ev) const override;
     };
 
-    using BaseMessagePtr = std::shared_ptr<google::protobuf::Message>;
+
+    class Message {
+    public:
+        std::shared_ptr<google::protobuf::Message> message;
+        std::string NETCPP_ID;
+    };
+
+
+    using BaseMessagePtr = std::shared_ptr<Message>;
+
+    using ProtobufMessagePtr = std::shared_ptr<google::protobuf::Message>;
 
 
     /**
-     * | len  | typeNameLen | typeName | message | checksum |
+     * | len | reqIdLen | reqId | typeNameLen | typeName | message | checksum |
      * len: 4字节，小端存储，消息总长度（包含所有字段）
+     * reqIdLen: 1字节，存储请求ID长度（固定为16字节）
+     * reqId: 16字节，存储请求ID（UUID）
      * typeNameLen: 1字节，存储类型名长度
      * typeName: 变长字段，存储消息类型名（UTF-8编码）
      * message: 变长字段，存储序列化后的消息内容（二进制格式）
@@ -37,20 +49,19 @@ namespace NETCPP {
     public:
         static BaseMessagePtr createMessage(const std::string &typeName);
 
-        static uint32_t crc32_table[256];
-
-        // 初始化CRC32表（基于IEEE标准）
-        static void init_crc32_table();
-
-        static uint32_t crc32(const std::string &str);
 
         bool deSerialize(Buffer &buffer, BaseMessagePtr &message);
 
         void serialize(BaseMessagePtr message, Buffer &buffer);
 
-    private
-    :
+
+        bool deSerialize(std::string &buffer, BaseMessagePtr &message);
+
+        void serialize(BaseMessagePtr message, std::string &buffer);
+
+    private:
         const static int32_t FieldLenSize = 4;
+        const static int32_t FieldReqIdLenSize = 4;
         const static int32_t FieldTypeNameLenSize = 4;
         const static int32_t FieldCheckSumLenSize = 4;
     };

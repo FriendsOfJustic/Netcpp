@@ -3,11 +3,14 @@
 //
 
 
-#include "./proto/test.pb.h"
 #include <google/protobuf/message.h>
+#include <spdlog/spdlog.h>
 
 #include "Buffer.h"
+#include "proto/test_req.pb.h"
+#include "proto/test_resp.pb.h"
 #include "protobuf/Codec.h"
+#include "protobuf/UUID.h"
 
 
 google::protobuf::Message *createMessage(const std::string &typeName) {
@@ -35,10 +38,9 @@ google::protobuf::Message *createMessage(const std::string &typeName) {
 }
 
 int main() {
-    demo::UserInfo info;
-
-    info.set_age(1);
-    info.add_hobbies("aaaa");
+    spdlog::set_level(spdlog::level::debug);
+    demo::service::DemoRequest info;
+    info.set_content("1aaaaaaaaaaaaaaaaaaaaaaa");
     auto serialize_as_string = info.SerializeAsString();
     auto desc = info.GetDescriptor();
 
@@ -50,35 +52,36 @@ int main() {
     }
 
     auto s = createMessage(desc->full_name());
-    auto msg2 = dynamic_cast<demo::UserInfo *>(s);
+    auto msg2 = dynamic_cast<demo::service::DemoRequest *>(s);
     if (msg2) {
         std::cout << "create message success" << std::endl;
-        msg2->set_age(1);
-        msg2->add_hobbies("aaaa");
-        msg2->add_hobbies("bbbb");
+        msg2->set_content(info.content());
     } else {
         std::cout << "create message failed" << std::endl;
     }
 
 
-    auto ptr = std::make_shared<demo::UserInfo>(*msg2);
+    auto ptr = std::make_shared<demo::service::DemoRequest>(*msg2);
     NETCPP::Buffer buffer;
 
 
     NETCPP::Codec codec;
 
+    auto id = NETCPP::UUID::GenerateUUID();
     codec.serialize(ptr, buffer);
 
     NETCPP::BaseMessagePtr resp;
+
+    std::string respId;
     auto ret = codec.deSerialize(buffer, resp);
     if (ret) {
+        assert(id==respId);
         std::cout << "deSerialize success" << std::endl;
-        auto msg = dynamic_cast<demo::UserInfo *>(resp.get());
+        auto msg = dynamic_cast<demo::service::DemoResponse *>(resp.get());
         if (msg) {
-            std::cout << "age: " << msg->age() << std::endl;
-            for (int i = 0; i < msg->hobbies_size(); i++) {
-                std::cout << "hobby: " << msg->hobbies(i) << std::endl;
-            }
+            std::cout << "code: " << msg->code() << std::endl;
+            std::cout << "message: " << msg->message() << std::endl;
+            std::cout << "result: " << msg->result() << std::endl;
         }
     } else {
         std::cout << "deSerialize failed" << std::endl;

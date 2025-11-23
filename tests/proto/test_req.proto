@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+// 包名：避免不同业务的proto冲突
+package demo.service;
+
+
+// 业务枚举：请求类型（示例）
+enum RequestType {
+  REQUEST_TYPE_UNSPECIFIED = 0; // proto3要求第一个枚举值为0（默认值）
+  REQUEST_TYPE_QUERY = 1;       // 查询请求
+  REQUEST_TYPE_UPDATE = 2;      // 更新请求
+}
+
+// 核心请求消息
+message DemoRequest {
+  // 必选（业务层面）：请求ID（唯一标识，用于链路追踪/幂等）
+  string request_id = 1;
+  // 必选：请求类型（枚举）
+  RequestType type = 2;
+  // 可选：业务参数 - 用户ID
+  uint64 user_id = 3;
+  // 可选：业务参数 - 待操作的内容（如查询关键词/更新内容）
+  string content = 4;
+  // 可选：扩展字段（预留，如超时时间、版本号）
+  uint32 timeout_ms = 5; // 超时时间（毫秒）
+}

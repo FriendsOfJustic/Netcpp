@@ -14,7 +14,7 @@ namespace NETCPP {
 
   Buffer::Edian Buffer::hostEndian = getEdian();
 
-  int32_t Buffer::NetToHostInt32(int32_t value) {
+  uint32_t Buffer::NetToHostInt32(uint32_t value) {
     if (hostEndian == BIG_ENDIAN) {
       return value;
     } else {
@@ -22,7 +22,7 @@ namespace NETCPP {
     }
   }
 
-  int32_t Buffer::HostToNetInt32(int32_t value) {
+  uint32_t Buffer::HostToNetInt32(uint32_t value) {
     if (hostEndian == BIG_ENDIAN) {
       return value;
     } else {
@@ -33,6 +33,7 @@ namespace NETCPP {
   Buffer::Buffer(size_t capacity) : capacity_(capacity), read_pos_(0), write_pos_(0) {
     buffer_.resize(capacity_);
   }
+
 
   Buffer::~Buffer() {
     buffer_.clear();
@@ -76,24 +77,25 @@ namespace NETCPP {
     return ret;
   }
 
-  int32_t Buffer::peekInt32() {
+  uint32_t Buffer::peekUInt32() {
     if (size() < sizeof(int32_t)) {
       throw std::runtime_error("Buffer::peekInt32: not enough data");
     }
-    int32_t ret = 0;
-    std::copy(buffer_.begin() + read_pos_, buffer_.begin() + read_pos_ + sizeof(int32_t), &ret);
+    uint32_t ret = 0;
+    std::copy(buffer_.begin() + read_pos_, buffer_.begin() + read_pos_ + sizeof(uint32_t),
+              reinterpret_cast<char *>(&ret));
     ret = NetToHostInt32(ret);
     return ret;
   }
 
-  int32_t Buffer::retrieveInt32() {
-    int32_t ret = peekInt32();
-    read_pos_ += sizeof(int32_t);
+  uint32_t Buffer::retrieveUInt32() {
+    uint32_t ret = peekUInt32();
+    read_pos_ += sizeof(uint32_t);
     return ret;
   }
 
 
-  void Buffer::writeInt32(int32_t value) {
+  void Buffer::writeUInt32(uint32_t value) {
     value = HostToNetInt32(value);
     write((char *) &value, sizeof(int32_t));
   }

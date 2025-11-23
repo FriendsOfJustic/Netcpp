@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+// 包名与请求保持一致，保证业务归属
+package demo.service;
+
+
+// 响应状态码（枚举，覆盖常见场景）
+enum ResponseCode {
+  RESPONSE_CODE_UNSPECIFIED = 0; // 默认值
+  RESPONSE_CODE_SUCCESS = 1;     // 成功
+  RESPONSE_CODE_FAILED = 2;      // 通用失败
+  RESPONSE_CODE_PARAM_ERROR = 3; // 参数错误
+  RESPONSE_CODE_TIMEOUT = 4;     // 超时
+}
+
+// 核心响应消息
+message DemoResponse {
+  // 必选：对应请求的ID（关联请求）
+  string request_id = 1;
+  // 必选：响应状态码
+  ResponseCode code = 2;
+  // 必选：响应描述（成功/失败的文案）
+  string message = 3;
+  // 可选：业务返回数据 - 结果内容（如查询结果、更新后的信息）
+  string result = 4;
+  // 可选：扩展字段 - 响应时间戳（毫秒级）
+  uint64 timestamp = 5;
+}
