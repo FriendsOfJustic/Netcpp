@@ -47,7 +47,7 @@ namespace NETCPP {
      */
     class Codec {
     public:
-        static BaseMessagePtr createMessage(const std::string &typeName);
+        static ProtobufMessagePtr createMessage(const std::string &typeName);
 
 
         bool deSerialize(Buffer &buffer, BaseMessagePtr &message);

@@ -29,14 +29,13 @@ namespace NETCPP {
 
         void onCall(ProtobufMessagePtr msg, ProtobufMessagePtr &resp) override {
             auto msg_ptr = std::dynamic_pointer_cast<Req>(msg);
-            auto resp_ptr = std::dynamic_pointer_cast<Resp>(resp);
-            if (msg_ptr && resp_ptr) {
+            auto resp_ptr = std::make_shared<Resp>();
+            if (msg_ptr) {
                 cb(msg_ptr, resp_ptr);
-            } else if (msg_ptr) {
-                spdlog::error("msg type {} not match", msg_ptr->GetTypeName());
             } else {
                 spdlog::error("msg type {} not match", msg_ptr->GetTypeName());
             }
+            resp = resp_ptr;
         }
 
     private:

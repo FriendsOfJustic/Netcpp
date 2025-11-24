@@ -37,7 +37,7 @@ namespace NETCPP {
 
         void Call(ConnectionPtr conn, BaseMessagePtr req, const CallReqCallback &callback);
 
-        void onResponse(ConnectionPtr conn, std::string &reqId);
+        void onResponse(ConnectionPtr conn);
 
     private:
         std::mutex _mutex;

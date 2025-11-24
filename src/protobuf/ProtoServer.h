@@ -12,8 +12,6 @@ namespace NETCPP {
     public:
         ProtoServer(asio::io_context &io_context, const asio::ip::tcp::endpoint &endpoint);
 
-        void onTcpMessage(ConnectionPtr ptr);
-
     private:
     };
 } // NETCPP

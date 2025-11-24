@@ -6,14 +6,13 @@
 
 namespace NETCPP {
     void Dispatcher::dispatch(ConnectionPtr ptr) {
-        BaseMessagePtr message;
-        std::string id;
+        BaseMessagePtr message = std::make_shared<Message>();
         while (codec_.deSerialize(ptr->ReadBuffer(), message)) {
-            spdlog::debug("received message id {}", id);
             auto it = handlers_map_.find(message->message->GetTypeName());
             if (it != handlers_map_.end()) {
                 try {
                     auto resp = std::make_shared<Message>();
+                    resp->NETCPP_ID = message->NETCPP_ID;
                     it->second->onCall(message->message, resp->message);
                     ptr->SendMsg(resp);
                 } catch (const std::exception &e) {

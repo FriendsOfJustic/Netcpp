@@ -33,9 +33,11 @@ namespace NETCPP {
         if (!castReq) {
             throw std::runtime_error("Req is not a proto message");
         }
+        BaseMessagePtr warpReq = std::make_shared<NETCPP::Message>();
+        warpReq->message = castReq;
         BaseMessagePtr rawResp;
-        requestor_.Call(connection_, castReq, rawResp);
-        resp = std::dynamic_pointer_cast<Resp>(rawResp);
+        requestor_.Call(connection_, warpReq, rawResp);
+        resp = std::dynamic_pointer_cast<Resp>(rawResp->message);
         if (!resp) {
             throw std::runtime_error("Resp is not a proto message");
         }
@@ -47,15 +49,18 @@ namespace NETCPP {
         if (!castReq) {
             throw std::runtime_error("Req is not a proto message");
         }
+        BaseMessagePtr warpReq = std::make_shared<NETCPP::Message>();
+        warpReq->message = castReq;
         BaseMessagePtr rawResp;
+
         auto cbfunc = [&future](BaseMessagePtr resp) {
-            auto castResp = std::dynamic_pointer_cast<Resp>(resp);
+            auto castResp = std::dynamic_pointer_cast<Resp>(resp->message);
             if (!castResp) {
                 throw std::runtime_error("Resp is not a proto message");
             }
             future.set_value(castResp);
         };
-        requestor_.Call(connection_, castReq, cbfunc);
+        requestor_.Call(connection_, warpReq, cbfunc);
     }
 }
 

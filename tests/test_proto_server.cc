@@ -9,6 +9,8 @@
 
 int main() {
     asio::io_context io_context;
+
+    spdlog::set_level(spdlog::level::debug);
     NETCPP::ProtoServer server(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 8888));
     server.RegisterMessageHandler<demo::service::DemoRequest, demo::service::DemoResponse>(
         [](std::shared_ptr<demo::service::DemoRequest> msg, std::shared_ptr<demo::service::DemoResponse> resp) {

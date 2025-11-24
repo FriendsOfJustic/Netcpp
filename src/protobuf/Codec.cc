@@ -75,9 +75,9 @@ namespace NETCPP {
         }
     }
 
-    BaseMessagePtr Codec::createMessage(const std::string &typeName) {
+    ProtobufMessagePtr Codec::createMessage(const std::string &typeName) {
         // 1. 初始化返回值：默认NULL（类型名无效时返回）
-        BaseMessagePtr message = nullptr;
+        ProtobufMessagePtr message = nullptr;
 
         // 2. 从「生成的描述符池」中根据类型名查找消息的Descriptor
         const google::protobuf::Descriptor *descriptor =
@@ -155,7 +155,7 @@ namespace NETCPP {
         total_size = Codec::FieldTypeNameLenSize + Codec::FieldReqIdLenSize + reqId.size() + typeName.size() + binary.
                      size() +
                      Codec::FieldLenSize;
-        spdlog::debug("serialize {} {}", typeName, total_size);
+        spdlog::debug("serialize {} {} {} {}", typeName, total_size, reqId.size(), reqId);
         buffer.writeUInt32(total_size);
         buffer.writeUInt32(reqId.size());
         buffer.write(reqId.c_str(), reqId.size());

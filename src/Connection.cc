@@ -193,12 +193,10 @@ namespace NETCPP {
 
   void Connection::doRead() {
     auto self = shared_from_this();
-    std::shared_ptr<std::vector<char> > array =
-        std::make_shared<std::vector<char> >(1024 * 32);
 
-    socket_.async_read_some(
-      asio::buffer(*array), [this, self, array](const asio::error_code &error,
-                                                size_t bytes_transferred) {
+
+    socket_.async_wait(
+      asio::socket_base::wait_read, [this, self](const asio::error_code &error) {
         if (error) {
           switch (error.value()) {
             case asio::error::eof: {
@@ -218,7 +216,9 @@ namespace NETCPP {
           }
           return;
         }
-        read_buffer_.write(array->data(), bytes_transferred);
+        char buffer[65535];
+        auto bytes_transferred = socket_.read_some(asio::buffer(buffer, sizeof(buffer)));
+        read_buffer_.write(buffer, bytes_transferred);
         if (read_callback_) {
           try {
             read_callback_(shared_from_this());
@@ -282,17 +282,26 @@ namespace NETCPP {
     asio::error_code ec;
     if (write_buffer_.size() == 0) {
       auto sz = socket_.write_some(asio::buffer(data, len), ec);
+      spdlog::debug("send data: {}", sz);
       if (ec) {
         spdlog::info("error while writing: {}", ec.message());
       } else {
         data += sz;
         len -= sz;
       }
+    } else if (len == 0) {
+      auto sz = socket_.write_some(asio::buffer(write_buffer_.getReadPos(), write_buffer_.size()), ec);
+      spdlog::debug("send data: {}", sz);
+      if (ec) {
+        spdlog::info("error while writing: {}", ec.message());
+      } else {
+        write_buffer_.discard(sz);
+      }
     }
     if (len > 0) {
       write_buffer_.write(data, len);
-      doWrite();
     }
+    doWrite();
   }
 
 #ifdef SEND_FILE

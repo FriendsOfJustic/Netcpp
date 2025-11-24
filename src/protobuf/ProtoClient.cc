@@ -7,8 +7,7 @@
 NETCPP::ProtoClient::ProtoClient(asio::io_context &io_context) : TcpClient(
     io_context) {
     SetReadCallback([this](ConnectionPtr ptr) {
-        std::string reqId;
-        requestor_.onResponse(std::move(ptr), reqId);
+        requestor_.onResponse(std::move(ptr));
     });
 }
 
