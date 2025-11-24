@@ -41,6 +41,7 @@ void Requestor::Call(ConnectionPtr conn, BaseMessagePtr req, const CallReqCallba
     desc._id = id;
     desc._descriptor = RequestType::RespCALLBACK;
     desc._cb = callback;
+    req->NETCPP_ID = id;
     req_map_[id] = std::move(desc);
     codec_.serialize(req, conn->WriteBuffer());
     conn->Write(nullptr, 0);

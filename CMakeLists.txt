@@ -16,7 +16,6 @@ if (MSVC)
     # 设置源文件编码为UTF-8
     # /utf-8 选项同时设置源文件编码和执行环境编码为UTF-8
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-
     # 可选：禁用特定警告
     add_compile_options(/wd4819)  # 禁用"该文件包含不能在当前代码页(936)中表示的字符"警告
 endif ()

@@ -21,9 +21,17 @@ int main() {
     auto resp = std::make_shared<demo::service::DemoResponse>();
     req->set_content("这是 同步调用测试");
     req->set_type(demo::service::REQUEST_TYPE_QUERY);
-    for (int i = 0; i < 10000; i++) {
-        client.Call<demo::service::DemoRequest, demo::service::DemoResponse>(req, resp);
-        spdlog::info("收到响应: {}", resp->Utf8DebugString());
+    // for (int i = 0; i < 1; i++) {
+    //     client.Call<demo::service::DemoRequest, demo::service::DemoResponse>(req, resp);
+    //     spdlog::info("收到响应: {}", resp->Utf8DebugString());
+    // }
+
+    for (int i = 0; i < 100000; i++) {
+        std::future<std::shared_ptr<demo::service::DemoResponse> > future;
+        client.Call<demo::service::DemoRequest, demo::service::DemoResponse>(req, future);
+        resp = future.get();
     }
+
+    spdlog::info("收到响应: {}", resp->Utf8DebugString());
     thread.Stop();
 }

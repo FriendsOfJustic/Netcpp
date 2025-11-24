@@ -15,10 +15,8 @@ namespace NETCPP {
     public:
         ProtoClient(asio::io_context &io_context);
 
-
         template<typename Req, typename Resp>
         void Call(std::shared_ptr<Req> req, std::shared_ptr<Resp> &resp);
-
 
         template<typename Req, typename Resp>
         void Call(std::shared_ptr<Req> req, std::future<std::shared_ptr<Resp> > &future);
@@ -52,13 +50,15 @@ namespace NETCPP {
         BaseMessagePtr warpReq = std::make_shared<NETCPP::Message>();
         warpReq->message = castReq;
         BaseMessagePtr rawResp;
-
-        auto cbfunc = [&future](BaseMessagePtr resp) {
+        std::shared_ptr<std::promise<std::shared_ptr<Resp> > > promise = std::make_shared<std::promise<std::shared_ptr<
+            Resp> > >();
+        future = promise->get_future();
+        auto cbfunc = [promise](BaseMessagePtr resp) {
             auto castResp = std::dynamic_pointer_cast<Resp>(resp->message);
             if (!castResp) {
                 throw std::runtime_error("Resp is not a proto message");
             }
-            future.set_value(castResp);
+            promise->set_value(castResp);
         };
         requestor_.Call(connection_, warpReq, cbfunc);
     }
