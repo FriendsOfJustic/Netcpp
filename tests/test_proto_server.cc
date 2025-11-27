@@ -3,8 +3,8 @@
 //
 
 
-#include "proto/test_req.pb.h"
-#include "proto/test_resp.pb.h"
+#include "test_req.pb.h"
+#include "test_resp.pb.h"
 #include "protobuf/ProtoServer.h"
 
 int main() {

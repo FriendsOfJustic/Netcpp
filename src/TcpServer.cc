@@ -26,4 +26,7 @@ void NETCPP::TcpServer::NewConnection(asio::ip::tcp::socket &sock, asio::io_cont
   conn->SetReadCallback(read_callback_);
   conn->SetWriteCompleteCallback(write_complete_callback_);
   conn->start();
+  if (connection_callback_) {
+    connection_callback_(conn);
+  }
 }

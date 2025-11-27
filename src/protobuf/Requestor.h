@@ -19,7 +19,6 @@ namespace NETCPP {
         FUTURE, RespCALLBACK,
     };
 
-
     typedef std::function<void(const BaseMessagePtr &resp)> CallReqCallback;
 
     struct RequestDescriptor {

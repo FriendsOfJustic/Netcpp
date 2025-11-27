@@ -5,8 +5,8 @@
 
 #include "EventLoopThread.h"
 #include "TcpClient.h"
-#include "proto/test_req.pb.h"
-#include "proto/test_resp.pb.h"
+#include "test_req.pb.h"
+#include "test_resp.pb.h"
 #include "protobuf/ProtoClient.h"
 
 int main() {
@@ -21,10 +21,10 @@ int main() {
     auto resp = std::make_shared<demo::service::DemoResponse>();
     req->set_content("这是 同步调用测试");
     req->set_type(demo::service::REQUEST_TYPE_QUERY);
-    // for (int i = 0; i < 1; i++) {
-    //     client.Call<demo::service::DemoRequest, demo::service::DemoResponse>(req, resp);
-    //     spdlog::info("收到响应: {}", resp->Utf8DebugString());
-    // }
+    for (int i = 0; i < 1; i++) {
+        client.Call<demo::service::DemoRequest, demo::service::DemoResponse>(req, resp);
+        spdlog::info("收到响应: {}", resp->Utf8DebugString());
+    }
 
     for (int i = 0; i < 100000; i++) {
         std::future<std::shared_ptr<demo::service::DemoResponse> > future;

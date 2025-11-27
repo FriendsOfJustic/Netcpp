@@ -62,6 +62,7 @@ void Router::addRoute(const HTTP_METHOD &method, const std::string &path, const 
 
 HttpHandler Router::getHandler(const std::string &method, const std::string &path) const {
   auto method_it = routes_.find(STRING2HTTP_METHOD[method]);
+  // 模糊匹配路径
   if (method_it != routes_.end()) {
     auto path_it = method_it->second.find(path);
     if (path_it != method_it->second.end()) {
