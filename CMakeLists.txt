@@ -5,6 +5,7 @@ project(Netcpp)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+
 file(GLOB_RECURSE SRC_LIST ${CMAKE_SOURCE_DIR}/src/*.cc ${CMAKE_SOURCE_DIR}/src/*.cpp)
 if (WIN32)
     add_compile_definitions(_WIN32_WINNT=0x0601)
